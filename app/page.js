@@ -7,6 +7,8 @@ import Header from '../components/Header'
 import ChatMessages from '../components/ChatMessages'
 import InputBar from '../components/InputBar'
 
+const base_url = process.env.NEXT_PUBLIC_BACKEND_SCHEME + '://' + process.env.NEXT_PUBLIC_BACKEND_HOST + ':' + process.env.NEXT_PUBLIC_BACKEND_PORT;
+
 export default function Home() {
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
@@ -19,7 +21,7 @@ export default function Home() {
     }
 
     const getSystemMessage = async (userInputMessage) => {
-        const response = await fetch('https://chat-twitter-backend.fly.dev/system_message', {
+        const response = await fetch(`${base_url}/system_message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ export default function Home() {
 
     const handleChat = async (updatedMessages) => {
         let accumulatedText = "";
-        fetch('https://chat-twitter-backend.fly.dev/chat_stream', {
+        fetch(`${base_url}/chat_stream`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -115,9 +117,9 @@ return (
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
         </Head>
   
-        <div className="h-screen flex flex-col bg-gray-800 text-gray-100 font-sans font-roboto">
+        <div className="flex flex-col h-screen font-sans text-gray-100 bg-gray-800 font-roboto">
             <Header />
-            <div className="flex-1 overflow-auto p-4 flex justify-center">
+            <div className="flex justify-center flex-1 p-4 overflow-auto">
                 <ChatMessages messages={messages} />
             </div>
   

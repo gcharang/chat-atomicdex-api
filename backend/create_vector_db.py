@@ -9,9 +9,14 @@ import tiktoken
 from tqdm import tqdm
 
 import os
+import re
 import zipfile
 from urllib.request import urlopen
 from io import BytesIO
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
 
 def embed_document(vector_db, splitter, document_id, document):
     metadata = [{'document_id': document_id}]
@@ -23,7 +28,7 @@ def embed_document(vector_db, splitter, document_id, document):
     docsearch = vector_db.add_texts(texts, metadatas=metadatas)
 
 def zipfile_from_github():
-    http_response = urlopen('https://github.com/twitter/the-algorithm/archive/refs/heads/main.zip')
+    http_response = urlopen(os.environ['REPO_BRANCH_ZIP_URL'])
     zf = BytesIO(http_response.read())
     return zipfile.ZipFile(zf, 'r')
 
@@ -31,7 +36,7 @@ embeddings = OpenAIEmbeddings(
     openai_api_key=os.environ['OPENAI_API_KEY'],
     openai_organization=os.environ['OPENAI_ORG_ID'],
 )
-encoder = tiktoken.get_encoding('cl100k_base')
+encoder = tiktoken.get_encoding(os.environ['ENCODING'])
 
 pinecone.init(
     api_key=os.environ['PINECONE_API_KEY'],
@@ -44,7 +49,10 @@ vector_store = Pinecone(
     namespace='twitter-algorithm'
 )
 
-splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=int(os.environ['CHUNK_SIZE']),
+    chunk_overlap=int(os.environ['CHUNK_OVERLAP'])
+    )
 
 total_tokens, corpus_summary = 0, []
 file_texts, metadatas = [], []
@@ -61,8 +69,8 @@ with zipfile_from_github() as zip_ref:
         else:
             with zip_ref.open(file_name, 'r') as file:
                 file_contents = str(file.read())
-                file_name_trunc = str(file_name).replace('the-algorithm-main/', '')
-                
+                file_name_trunc = re.sub(r'^[^/]+/', '', str(file_name))
+                                
                 n_tokens = len(encoder.encode(file_contents))
                 total_tokens += n_tokens
                 corpus_summary.append({'file_name': file_name_trunc, 'n_tokens': n_tokens})
@@ -79,4 +87,4 @@ vector_store.from_documents(
     namespace='twitter-algorithm'
 )
 
-pd.DataFrame.from_records(corpus_summary).to_csv('data/corpus_summary.csv', index=False)
+pd.DataFrame.from_records(corpus_summary).to_csv(os.environ['CORPUS_SUMMARY_OUTPUT_FILE_PATH'], index=False)
