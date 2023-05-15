@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Weaviate
+weaviate
+
 __pycache__/
 *.py[cod]
 *$py.class

@@ -3,7 +3,9 @@ openai
 tiktoken
 fastapi==0.95.0
 uvicorn[standard]==0.21.1
-pinecone-client[grpc]==2.2.1
 hypercorn
 gunicorn
 pandas
+weaviate-client
+tqdm
+python-dotenv
