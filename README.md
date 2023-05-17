@@ -1,14 +1,12 @@
-# Chat With the Algorithm
+# Chat With the AtomicDEX API github repo
 
-Ask questions about the open-sourced [Twitter algorithm](https://github.com/twitter/the-algorithm).
-
-The app is publicly hosted here: https://chat-twitter.vercel.app/. Instructions for hosting it yourself are below.
+Ask questions about the [AtomicDEX API](https://github.com/KomodoPlatform/atomicDEX-API).
 
 ## Basic architecture
 
-The app is a NextJS/Tailwind CSS frontend with a FastAPI backend. The frontend is hosted on Vercel and the backend is hosted on a small node on [fly.io](https://fly.io/). The backend uses a Pinecone vector DB on the free tier. There is a Dockerfile provided.
+The app is a NextJS/Tailwind CSS frontend with a FastAPI backend. Uses Docker.
 
-Right now, I'm footing the OpenAI bill on the public instance. But I may require users to bring their own key in the future.
+GPT-3.5 is adequate. GPT-4 performs admirably, but is expensive. Reply with continue to ask the chatbot to continue its response
 
 ## Running locally
 
@@ -25,21 +23,15 @@ cd chat-atomicdex-api
 npm ci
 ```
 
-3. Run the Node dev server
+3. Build and run the backend container
 
 ```bash
-npm run dev
+docker-compose up
 ```
 
-4. In another terminal, install the Python dependencies
+Attach a terminal to the container and do the following:
 
-```bash
-# switch to the the backend/ directory and install the required libraries
-cd backend 
-pip install -r requirements.txt
-```
-
-5. Set up environment variables
+4. Set up environment variables
 
 Copy the .env-template file to create a .env file using the following command:
 
@@ -57,21 +49,36 @@ Replace the placeholder values with your actual API keys, organization ID, and o
 python create_vector_db.py
 ```
 
-8. Run the backend server
+8. Eun the backend server
 
 ```bash
-uvicorn main:app --reload
+gunicorn main:app --bind "[::]:5555" -k uvicorn.workers.UvicornWorker --reload
 ```
 
-9. The URL for the backend is currently hard coded to the live server URL. You will have to change this to localhost or your other server name. This can be done in the `.env.local` file in the root directory of your project.
+Run the following outside the container
+
+9. Set up environment variables for the frontend
+
+Copy the .env-template file to create a .env file using the following command:
+
+```bash
+cp .env.local-template .env.local
+```
+
+Update the .env.local file with your values
+
+
+10. Run the Node dev server
+
+```bash
+npm run dev
+```
+
 
 ## Potential improvements
 
-I will continue development on this project as demand exists. But, if I abandon it, here are some ideas:
-
-- The dependency on Pinecone could be removed and replaced with a simple NumPy array. I just wanted to try Pinecone.
 - Replace the `chat_stream` endpoint with a websocket implementation.
 - Ask the model not to generatively reference its sources. Instead, simply copy the code snippet directly.
 - The splitter could be improved. Right now, it's a character splitter that favors newlines, but OpenAI has implemented a similar one that splits on tokens instead.
-- The embeddings and retrieval mechanisms could account for the hierarchy of the Algorithm's code structure, like Replit's Ghostwriter does.
-- The UI could be improved **a lot**. I suck at JS.
+- The embeddings and retrieval mechanisms could account for the hierarchy of AtomicDEX API github repo's code structure, like Replit's Ghostwriter does.
+- Could bring in issue/PR comments to add more relevant context

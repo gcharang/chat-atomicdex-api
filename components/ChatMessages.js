@@ -70,7 +70,7 @@ const ChatMessages = ({ messages }) => {
   
       if (isReadmeWithPath) {
         // Use the full file path directly to create the URL for "README"
-        const url = `https://github.com/twitter/the-algorithm/blob/main/${filename}`;
+        const url = `https://github.com/KomodoPlatform/atomicDEX-API/blob/main/${filename}`;
         return `<a class="text-blue-500 underline cursor-pointer" href="${url}" target="_blank" rel="noopener noreferrer">${filename}</a>`;
       } else if (isValidExtension) {
         // Find the record in the data list that matches the basename and has a valid extension
@@ -79,7 +79,7 @@ const ChatMessages = ({ messages }) => {
           return recordBasename === filename;
         });
         if (fileRecord) {
-          const url = `https://github.com/twitter/the-algorithm/blob/main/${fileRecord.file_name}`;
+          const url = `https://github.com/KomodoPlatform/atomicDEX-API/blob/main/${fileRecord.file_name}`;
           return `<a class="text-blue-500 underline cursor-pointer" href="${url}" target="_blank" rel="noopener noreferrer">${filename}</a>`;
         }
       }

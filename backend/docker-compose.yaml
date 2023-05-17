@@ -3,7 +3,7 @@ services:
   app:
    build: .
    container_name: llm-backend 
-   #command: gunicorn main:app --bind "[::]:5555" -k uvicorn.workers.UvicornWorker   
+   #command: gunicorn main:app --bind "[::]:5555" -k uvicorn.workers.UvicornWorker --reload  
    stdin_open: true # docker run -i
    tty: true        # docker run -t 
    ports:
