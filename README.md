@@ -23,15 +23,7 @@ cd chat-atomicdex-api
 npm ci
 ```
 
-3. Build and run the backend container
-
-```bash
-docker-compose up
-```
-
-Attach a terminal to the container and do the following:
-
-4. Set up environment variables
+3. Set up environment variables
 
 Copy the .env-template file to create a .env file using the following command:
 
@@ -42,14 +34,24 @@ cp .env-template .env
 Update the .env file with your values:
 Replace the placeholder values with your actual API keys, organization ID, and other configuration values as needed. Save the file when you're done.
 
-7. Embed the repository
+4. Build and run the backend container
+
+```bash
+cd backend
+docker-compose up
+```
+
+Attach a terminal to the container and do the following:
+
+
+5. Embed the repository
 
 ```bash
 # still in the backend/ directory
 python create_vector_db.py
 ```
 
-8. Eun the backend server
+6. Eun the backend server
 
 ```bash
 gunicorn main:app --bind "[::]:5555" -k uvicorn.workers.UvicornWorker --reload
@@ -57,7 +59,7 @@ gunicorn main:app --bind "[::]:5555" -k uvicorn.workers.UvicornWorker --reload
 
 Run the following outside the container
 
-9. Set up environment variables for the frontend
+7. Set up environment variables for the frontend
 
 Copy the .env-template file to create a .env file using the following command:
 
@@ -68,7 +70,7 @@ cp .env.local-template .env.local
 Update the .env.local file with your values
 
 
-10. Run the Node dev server
+8. Run the Node dev server
 
 ```bash
 npm run dev
