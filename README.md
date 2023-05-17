@@ -76,7 +76,6 @@ Update the .env.local file with your values
 npm run dev
 ```
 
-
 ## Potential improvements
 
 - Replace the `chat_stream` endpoint with a websocket implementation.
@@ -84,3 +83,10 @@ npm run dev
 - The splitter could be improved. Right now, it's a character splitter that favors newlines, but OpenAI has implemented a similar one that splits on tokens instead.
 - The embeddings and retrieval mechanisms could account for the hierarchy of AtomicDEX API github repo's code structure, like Replit's Ghostwriter does.
 - Could bring in issue/PR comments to add more relevant context
+
+### Useful docker commands
+
+```bash
+docker-compose down && docker-compose up --build -d
+docker-attach llm-backend
+```

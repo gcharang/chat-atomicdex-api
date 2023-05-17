@@ -3,11 +3,11 @@ services:
   app:
    build: .
    container_name: llm-backend 
-   #command: gunicorn main:app --bind "[::]:5555" -k uvicorn.workers.UvicornWorker --reload  
+   #command: gunicorn main:app --bind "[::]:5556" -k uvicorn.workers.UvicornWorker --reload  
    stdin_open: true # docker run -i
    tty: true        # docker run -t 
    ports:
-    - 5555:5555
+    - 5556:5556
    volumes:
     - .:/app
    depends_on:
@@ -31,7 +31,9 @@ services:
       AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
       PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
       DEFAULT_VECTORIZER_MODULE: 'text2vec-openai'
-      ENABLE_MODULES: 'text2vec-openai'
+      ENABLE_MODULES: 'text2vec-openai,backup-filesystem'
+      BACKUP_FILESYSTEM_PATH: '/tmp/backups'
       CLUSTER_HOSTNAME: 'node1'
     volumes:
       - ./weaviate:/var/lib/weaviate
+      - ./weaviate_backups:/tmp/backups
