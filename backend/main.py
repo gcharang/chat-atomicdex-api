@@ -122,13 +122,7 @@ def embedding_search(query, k):
     #print(formatted_result)
     return formatted_result
 
-@app.get("/health")
-def health():
-    return "OK"
-
-@app.post("/system_message", response_model=ContextSystemMessage)
-def system_message(query: Message):
-    
+def get_hyde_query(query_text):
     hyde_prompt = """What is HyDE?
     
     Given a query, HyDE first zero-shot instructs a large language model (e.g. ChatGPT (yourself :))) to generate a hypothetical document. The document captures relevance patterns but is unreal and may contain false details. Then, an unsupervised contrastively learned encoder (e.g.Contriever) encodes the document into an embedding vector. This vector identifies a neighborhood in the corpus embedding space, where similar real documents are retrieved based on vector similarity. This second step ground the generated document to the actual corpus, with the encoder's dense bottleneck filtering out the incorrect details.
@@ -146,7 +140,7 @@ def system_message(query: Message):
     The HDG doesn't add any extra fluff or natural language if it isn't necessary.
     """
 
-    messages = [{"role": "system","content":hyde_prompt}, {"role": "user","content":query.text}]
+    messages = [{"role": "system","content":hyde_prompt}, {"role": "user","content":query_text}]
     openai.api_key = os.environ['OPENAI_API_KEY']
     hyde_completion = openai.ChatCompletion.create(
         model=os.environ['MODEL_NAME'],
@@ -155,9 +149,17 @@ def system_message(query: Message):
     )
     hyde_response = hyde_completion.choices[0]["message"]["content"]
     print(hyde_response)
+    return hyde_response
     
+
+@app.get("/health")
+def health():
+    return "OK"
+
+@app.post("/system_message", response_model=ContextSystemMessage)
+def system_message(query: Message):   
     
-    docs = embedding_search(hyde_response, k=int(os.environ['NUM_RELEVANT_DOCS']))
+    docs = embedding_search(get_hyde_query(query.text), k=int(os.environ['NUM_RELEVANT_DOCS']))
     context = format_context(docs)
 
     prompt = """Given the following context and code, answer the following question. Do not use outside context, and do not assume the user can see the provided context. Try to be as detailed as possible and reference the components that you are looking at. Keep in mind that these are only code snippets, and more snippets may be added during the conversation.
@@ -201,6 +203,8 @@ async def chat_stream(chat: List[Message]):
             encoding = tiktoken.get_encoding(encoding_name)
             system_message, latest_query = [chat[0].text, chat[-1].text]
             # the system message gets NUM_RELEVANT_DOCS new docs. Only include NUM_RELEVANT_FOLLOWUP_DOCS more for new queries
+            
+            #latest_query = get_hyde_query(latest_query)
             
             if len(chat) > 2 or not latest_query.startswith("continue"):                
                 keep_messages = [system_message, latest_query]
